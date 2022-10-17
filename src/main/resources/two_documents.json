@@ -1,0 +1,116 @@
+[
+  {
+    "id": 205867,
+    "authors": [
+      {
+        "name": "Aitor Mendaza-Ormaza",
+        "id": 2166346568,
+        "org": "test"
+      },
+      {
+        "name": "Oscar Miguel-Hurtado",
+        "id": 2683827842
+      },
+      {
+        "name": "Ivan Rubio-Polo",
+        "id": 2915733595
+      },
+      {
+        "name": "Raul Alonso-Moreno",
+        "id": 2974064500
+      }
+    ],
+    "title": "On-line Signature Biometrics using Support Vector Machine.",
+    "year": 2009,
+    "n_citation": 3,
+    "page_start": "185",
+    "page_end": "188",
+    "doc_type": "Conference",
+    "publisher": "",
+    "volume": "",
+    "issue": "",
+    "doi": "",
+    "fos": [
+      {
+        "name": "Structured support vector machine",
+        "w": 0.68626
+      },
+      {
+        "name": "Computer vision",
+        "w": 0.44162
+      },
+      {
+        "name": "Computer science",
+        "w": 0.4503
+      },
+      {
+        "name": "Support vector machine",
+        "w": 0.54097
+      },
+      {
+        "name": "Artificial intelligence",
+        "w": 0.0
+      },
+      {
+        "name": "Biometrics",
+        "w": 0.54891
+      }
+    ],
+    "venue": {
+      "raw": "Biometrics and Electronic Signatures",
+      "id": 1141762878,
+      "type": "C"
+    }
+  },
+  {
+    "id": 206076,
+    "authors": [
+      {
+        "name": "Owen P. Kenny",
+        "id": 1831415885,
+        "org": "Test2"
+      },
+      {
+        "name": "Douglas J. Nelson",
+        "id": 2157472170
+      }
+    ],
+    "title": "A model for speech reverberation and intelligibility restoring filters.",
+    "year": 1998,
+    "n_citation": 1,
+    "page_start": "",
+    "page_end": "",
+    "doc_type": "Conference",
+    "publisher": "",
+    "volume": "",
+    "issue": "",
+    "doi": "",
+    "fos": [
+      {
+        "name": "Reverberation",
+        "w": 0.53711
+      },
+      {
+        "name": "Computer science",
+        "w": 0.37631
+      },
+      {
+        "name": "Speech recognition",
+        "w": 0.44852
+      },
+      {
+        "name": "Intelligibility (communication)",
+        "w": 0.67567
+      }
+    ],
+    "references": [
+      2005687710,
+      2018037215
+    ],
+    "venue": {
+      "raw": "Conference of the International Speech Communication Association",
+      "id": 1177287137,
+      "type": "C"
+    }
+  }
+]

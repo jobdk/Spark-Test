@@ -1,31 +1,44 @@
 package services
 
-import model.{Author, Document}
+import Utils.MyJsonProtocol.documentFormat
+import model.Document
+import org.slf4j.LoggerFactory
+import services.DatabaseService.insertDocumentInDatabase
 import spray.json._
 
-import scala.io.{BufferedSource, Source}
+import java.io.BufferedReader
+import java.sql.Connection
+import scala.io.Source
 
-object DocumentMapper {
+object DocumentMapperService {
+  val LOG = LoggerFactory.getLogger(getClass.getSimpleName)
 
-  def mapJsonToListOfDocuments(fileName: String): List[Document] = {
+  def mapJsonToListOfDocuments(fileName: String, connection: Connection): List[Document] = {
+    val bufferedReader: BufferedReader = Source.fromResource(fileName).bufferedReader()
+    var counter: Int = 0
 
-    import MyJsonProtocol._
-//    val sour: Iterator[String] = Source.fromResource(fileName).getLines()
-    val source: BufferedSource = Source.fromResource(fileName)
+    bufferedReader.lines().forEach(line => {
+      val lineToMap = checkLineForPossibleParsingErrors(line)
+      try {
+        val json: JsValue = lineToMap.mkString.stripMargin.parseJson
+        insertDocumentInDatabase(json.convertTo[Document], connection)
+        counter += 1
+      } catch {
+        case e: Exception => {
+          LOG.error(e.getMessage)
+          System.exit(1)
+        }
+      }
+      println(counter)
 
-    val json: JsValue = source.mkString.stripMargin.parseJson
-    json.convertTo[List[Document]]
+    })
+    null
+  }
+
+  def checkLineForPossibleParsingErrors(line: String): String = {
+    val lineSubstring: String = if (line.startsWith(",")) line.substring(1, line.length) else line
+    if (line.contains("\uFFFF")) line.replace("\uFFFF", "x") else lineSubstring
   }
 }
 
-object MyJsonProtocol extends DefaultJsonProtocol {
-  implicit val authorFormat: RootJsonFormat[Author] = jsonFormat3(Author)
-  implicit val documentFormat: RootJsonFormat[Document] = jsonFormat13(Document)
 
-  def read(value: JsValue) = value match {
-    case JsArray(Vector(JsString(name), JsNumber(red), JsNumber(green), JsNumber(blue))) =>
-      // TODO: add handling for characters which cannot be serialized by spray json -> should be done pre parsing
-      println(2)
-    case _ => deserializationError("Color expected")
-  }
-}
