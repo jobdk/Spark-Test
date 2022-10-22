@@ -2,7 +2,7 @@ package model
 
 case class Document(
                      id: Long,
-                     authors: Seq[Author],
+                     authors: Option[Seq[Author]],
                      title: String,
                      year: Int,
                      n_citation: Int,
