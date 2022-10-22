@@ -1,6 +1,7 @@
 package services
 
 import Utils.DocumentJsonProtocol.documentFormat
+import Utils.TimeUtils.calculateTimeDifference
 import model.Document
 import org.slf4j.{Logger, LoggerFactory}
 import services.DatabaseService.insertDocumentInDatabase
@@ -13,23 +14,25 @@ object DocumentMapperService {
   val timeList: ListBuffer[Long] = ListBuffer() // time
   private val LOG: Logger = LoggerFactory.getLogger(getClass.getSimpleName)
 
-  def mapJsonToListOfDocuments(line: String, connection: Connection): Unit = {
+  def mapJsonToListOfDocuments(line: String, connection: Connection): Long = {
     val startTimeMapper = System.nanoTime // time
 
-    if (!line.endsWith("}")) return
+    if (!line.endsWith("}")) return calculateTimeDifference(startTimeMapper, System.nanoTime())
+
     val lineToMap = checkLineForPossibleParsingErrors(line)
     try {
-      val json: JsValue = lineToMap.mkString.stripMargin.parseJson
-      val document: Document = json.convertTo[Document]
+      val document: Document = lineToMap.mkString.stripMargin.parseJson.convertTo[Document]
+      val mappingDuration = calculateTimeDifference(startTimeMapper, System.nanoTime) // time
 
-      val endTimeReaderMapper = System.nanoTime // time
-      timeList.addOne(endTimeReaderMapper - startTimeMapper) // time
 
       insertDocumentInDatabase(document, connection)
+
+      mappingDuration
     } catch {
       case e: Exception =>
         LOG.error(e.getMessage)
         System.exit(1)
+        0
     }
   }
 
