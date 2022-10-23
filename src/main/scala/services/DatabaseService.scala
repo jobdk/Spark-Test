@@ -6,6 +6,7 @@ import model.Document
 import java.sql.{Connection, DriverManager}
 
 object DatabaseService {
+  val connection: Connection = initialiseDatabase()
 
   def initialiseDatabase(): Connection = {
     Class.forName(DATABASE_DRIVER)
@@ -19,8 +20,8 @@ object DatabaseService {
   }
 
   def insertDocumentInDatabase(
-      documentList: List[Document],
-      connection: Connection
+      documentList: List[Document]
+//      connection: Connection
   ): Unit = {
     insertIntoDocumentTable(documentList, connection)
     insertIntoAuthorTable(documentList, connection)
@@ -85,7 +86,6 @@ object DatabaseService {
       connection: Connection
   ): Unit = {
     val documentsWithAuthor = documentList.filter(_.authors.isDefined)
-    alterTable(connection, DROP_AUTHOR_OF_DOCUMENT_FOREIGN_KEY)
     val insertAuthorOfDocumentStatement = connection.prepareStatement(
       s"REPLACE INTO AUTHOROFDOCUMENT (DOCUMENT_ID, AUTHOR_ID) VALUES (?, ?)"
     )
@@ -100,7 +100,6 @@ object DatabaseService {
 
     insertAuthorOfDocumentStatement.executeBatch()
     connection.commit()
-    alterTable(connection, ADD_AUTHOR_OF_DOCUMENT_FOREIGN_KEY)
     insertAuthorOfDocumentStatement.close()
   }
 
@@ -109,7 +108,6 @@ object DatabaseService {
       connection: Connection
   ): Unit = {
     val documentsWithReference = documentList.filter(_.references.isDefined)
-    alterTable(connection, DROP_DOCUMENT_REFERENCES_FOREIGN_KEY)
     val insertDocumentReferencesStatement = connection.prepareStatement(
       s"REPLACE INTO DOCUMENTREFERENCES (DOCUMENT_ID, REFERENCE_ID) VALUES (?, ?)"
     )
@@ -124,15 +122,7 @@ object DatabaseService {
     })
     insertDocumentReferencesStatement.executeBatch()
     connection.commit()
-    alterTable(connection, ADD_DOCUMENT_REFERENCES_FOREIGN_KEY)
     insertDocumentReferencesStatement.close()
-  }
-
-  def alterTable(connection: Connection, command: String) {
-    val statement = connection.createStatement()
-    statement.execute(command)
-    connection.commit()
-    statement.close()
   }
 
 }

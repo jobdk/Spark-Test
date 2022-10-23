@@ -7,14 +7,11 @@ import org.slf4j.{Logger, LoggerFactory}
 import services.DatabaseService.insertDocumentInDatabase
 import spray.json._
 
-import java.sql.Connection
-
 object DocumentMapperService {
   private val LOG: Logger = LoggerFactory.getLogger(getClass.getSimpleName)
 
   def mapJsonToListOfDocuments(
-      list: List[String],
-      connection: Connection
+      list: List[String]
   ): Unit = {
     val mapperStartTime = getCurrentTime // time
 
@@ -30,7 +27,9 @@ object DocumentMapperService {
 
       val databaseStartTime = getCurrentTime // time
 
-      insertDocumentInDatabase(documentList, connection)
+      insertDocumentInDatabase(
+        documentList
+      )
 
       logTime(
         calculateTimeDifference(databaseStartTime, getCurrentTime),
