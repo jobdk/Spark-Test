@@ -1,121 +1,138 @@
 package services
 
+import Utils.SqlCommands._
 import model.Document
 
 import java.sql.{Connection, DriverManager}
-import scala.collection.mutable.ListBuffer
 
 object DatabaseService {
-  val timeList: ListBuffer[Long] = ListBuffer() // time
 
   def initialiseDatabase(): Connection = {
-    Class.forName("org.h2.Driver")
-    val connection = DriverManager.getConnection("jdbc:h2:./src/main/resources/DocumentsDatabase;MODE=MYSQL")
+    Class.forName(DATABASE_DRIVER)
+    val connection = DriverManager.getConnection(DATABASE_CONNECTION_EMBEDDED)
+    connection.setAutoCommit(false)
     val createSchemaStatements = connection.createStatement()
-    val createSchemaStatementsString =
-      """
-            DROP TABLE if EXISTS authorOfDocument;
-            DROP TABLE if EXISTS documentReferences;
-            DROP TABLE if EXISTS document;
-            DROP TABLE if EXISTS author;
-
-            CREATE TABLE document
-            (
-                document_id   LONG NOT NULL,
-                title         VARCHAR(800),
-                document_year Int,
-                n_citation    Int,
-                page_start    VARCHAR(100),
-                page_end      VARCHAR(100),
-                doc_type      VARCHAR(800),
-                publisher     VARCHAR(800),
-                volume        VARCHAR(800),
-                issue         VARCHAR(800),
-                doi           VARCHAR(800)
-            );
-
-            CREATE TABLE author
-            (
-                author_id LONG NOT NULL,
-                name      VARCHAR(300),
-                org       VARCHAR(800)
-            );
-
-            CREATE TABLE authorOfDocument
-            (
-                document_id LONG NOT NULL,
-                author_id   LONG NOT NULL
-            );
-
-            CREATE TABLE documentReferences
-            (
-                document_id  LONG NOT NULL,
-                reference_id LONG NOT NULL
-            );
-          """.stripMargin
-    createSchemaStatements.execute(createSchemaStatementsString)
+    //  createSchemaStatements.execute(CREATE_SCHEMA_STATEMENTS_WITHOUT_PRIMARY_KEY)
+    createSchemaStatements.execute(CREATE_SCHEMA_STATEMENTS_WITH_PRIMARY_KEY)
+    createSchemaStatements.close()
     connection
   }
 
+  def insertDocumentInDatabase(
+      documentList: List[Document],
+      connection: Connection
+  ): Unit = {
+    insertIntoDocumentTable(documentList, connection)
+    insertIntoAuthorTable(documentList, connection)
+    insertIntoAuthorOfDocumentTable(documentList, connection)
+    insertIntoDocumentReferencesTable(documentList, connection)
 
-  def insertDocumentInDatabase(document: Document, connection: Connection): Unit = {
-    val startTimeReader = System.nanoTime // time
-
-    insertIntoDocumentTable(document, connection)
-    insertIntoAuthorTable(document, connection)
-    insertIntoDocumentReferencesTable(document, connection)
-
-    val endTimeReader = System.nanoTime // time
-    timeList.addOne(endTimeReader - startTimeReader) // time
   }
 
-  private def insertIntoDocumentTable(document: Document, connection: Connection): Unit = {
+  private def insertIntoDocumentTable(
+      documentList: List[Document],
+      connection: Connection
+  ): Unit = {
     val insertDocumentStatement = connection.prepareStatement(
-      s"INSERT INTO DOCUMENT (DOCUMENT_ID, TITLE, DOCUMENT_YEAR, N_CITATION, PAGE_START, PAGE_END, DOC_TYPE, PUBLISHER, VOLUME, ISSUE, DOI) VALUES (?, ?, ?,?, ?, ?,?, ?, ?,?,?)")
-    insertDocumentStatement.setLong(1, document.id)
-    insertDocumentStatement.setString(2, document.title)
-    insertDocumentStatement.setInt(3, document.year)
-    insertDocumentStatement.setInt(4, document.n_citation)
-    insertDocumentStatement.setString(5, document.page_start)
-    insertDocumentStatement.setString(6, document.page_end)
-    insertDocumentStatement.setString(7, document.doc_type)
-    insertDocumentStatement.setString(8, document.publisher)
-    insertDocumentStatement.setString(9, document.volume)
-    insertDocumentStatement.setString(10, document.issue)
-    insertDocumentStatement.setString(11, document.doi)
-    insertDocumentStatement.execute()
-  }
-
-  private def insertIntoAuthorTable(document: Document, connection: Connection): Unit = {
-    if (document.authors.isEmpty) return
-
-    document.authors.orNull.foreach(author => {
-      val insertAuthorStatement = connection.prepareStatement(
-        s"INSERT INTO AUTHOR (AUTHOR_ID, NAME, ORG) VALUES (?, ?, ?)")
-      insertAuthorStatement.setLong(1, author.id)
-      insertAuthorStatement.setString(2, author.name)
-      insertAuthorStatement.setString(3, author.org.orNull)
-      insertAuthorStatement.execute()
-      insertIntoAuthorOfDocumentTable(document.id, author.id, connection)
+      s"REPLACE INTO DOCUMENT (DOCUMENT_ID, TITLE, DOCUMENT_YEAR, N_CITATION, PAGE_START, PAGE_END, DOC_TYPE, PUBLISHER, VOLUME, ISSUE, DOI) VALUES (?, ?, ?,?, ?, ?,?, ?, ?,?,?)"
+    )
+    //      s"INSERT INTO DOCUMENT (DOCUMENT_ID, TITLE, DOCUMENT_YEAR, N_CITATION, PAGE_START, PAGE_END, DOC_TYPE, PUBLISHER, VOLUME, ISSUE, DOI) VALUES (?, ?, ?,?, ?, ?,?, ?, ?,?,?)")
+    documentList.foreach(document => {
+      insertDocumentStatement.setLong(1, document.id)
+      insertDocumentStatement.setString(2, document.title)
+      insertDocumentStatement.setInt(3, document.year)
+      insertDocumentStatement.setInt(4, document.n_citation)
+      insertDocumentStatement.setString(5, document.page_start)
+      insertDocumentStatement.setString(6, document.page_end)
+      insertDocumentStatement.setString(7, document.doc_type)
+      insertDocumentStatement.setString(8, document.publisher)
+      insertDocumentStatement.setString(9, document.volume)
+      insertDocumentStatement.setString(10, document.issue)
+      insertDocumentStatement.setString(11, document.doi)
+      insertDocumentStatement.addBatch()
     })
+    insertDocumentStatement.executeBatch()
+    connection.commit()
+    insertDocumentStatement.close()
   }
 
-  private def insertIntoAuthorOfDocumentTable(documentId: Long, authorId: Long, connection: Connection): Unit = {
+  private def insertIntoAuthorTable(
+      documentList: List[Document],
+      connection: Connection
+  ): Unit = {
+    val documentsWithAuthor = documentList.filter(_.authors.isDefined)
+    val insertAuthorStatement = connection.prepareStatement(
+      s"REPLACE INTO AUTHOR (AUTHOR_ID, NAME, ORG) VALUES (?, ?, ?)"
+    )
+    //      s"INSERT INTO AUTHOR (AUTHOR_ID, NAME, ORG) VALUES (?, ?, ?)")
+
+    documentsWithAuthor.foreach(document => {
+      document.authors.orNull.foreach(author => {
+
+        insertAuthorStatement.setLong(1, author.id)
+        insertAuthorStatement.setString(2, author.name)
+        insertAuthorStatement.setString(3, author.org.orNull)
+        insertAuthorStatement.addBatch()
+      })
+    })
+    insertAuthorStatement.executeBatch()
+    connection.commit()
+    insertAuthorStatement.close()
+  }
+
+  private def insertIntoAuthorOfDocumentTable(
+      documentList: List[Document],
+      connection: Connection
+  ): Unit = {
+    val documentsWithAuthor = documentList.filter(_.authors.isDefined)
+    alterTable(connection, DROP_AUTHOR_OF_DOCUMENT_FOREIGN_KEY)
     val insertAuthorOfDocumentStatement = connection.prepareStatement(
-      s"INSERT INTO AUTHOROFDOCUMENT (DOCUMENT_ID, AUTHOR_ID) VALUES (?, ?)")
-    insertAuthorOfDocumentStatement.setLong(1, documentId)
-    insertAuthorOfDocumentStatement.setLong(2, authorId)
-    insertAuthorOfDocumentStatement.execute()
+      s"REPLACE INTO AUTHOROFDOCUMENT (DOCUMENT_ID, AUTHOR_ID) VALUES (?, ?)"
+    )
+    //      s"INSERT INTO AUTHOROFDOCUMENT (DOCUMENT_ID, AUTHOR_ID) VALUES (?, ?)")
+    documentsWithAuthor.foreach(document => {
+      document.authors.orNull.foreach(author => {
+        insertAuthorOfDocumentStatement.setLong(1, document.id)
+        insertAuthorOfDocumentStatement.setLong(2, author.id)
+        insertAuthorOfDocumentStatement.addBatch()
+      })
+    })
+
+    insertAuthorOfDocumentStatement.executeBatch()
+    connection.commit()
+    alterTable(connection, ADD_AUTHOR_OF_DOCUMENT_FOREIGN_KEY)
+    insertAuthorOfDocumentStatement.close()
   }
 
-  private def insertIntoDocumentReferencesTable(document: Document, connection: Connection): Unit = {
-    if (document.references.isEmpty) return
-    document.references.get.foreach(reference => {
-      val insertDocumentReferencesStatement = connection.prepareStatement(
-        s"INSERT INTO DOCUMENTREFERENCES (DOCUMENT_ID, REFERENCE_ID) VALUES (?, ?)")
-      insertDocumentReferencesStatement.setLong(1, document.id)
-      insertDocumentReferencesStatement.setLong(2, reference)
-      insertDocumentReferencesStatement.execute()
+  private def insertIntoDocumentReferencesTable(
+      documentList: List[Document],
+      connection: Connection
+  ): Unit = {
+    val documentsWithReference = documentList.filter(_.references.isDefined)
+    alterTable(connection, DROP_DOCUMENT_REFERENCES_FOREIGN_KEY)
+    val insertDocumentReferencesStatement = connection.prepareStatement(
+      s"REPLACE INTO DOCUMENTREFERENCES (DOCUMENT_ID, REFERENCE_ID) VALUES (?, ?)"
+    )
+//          s"INSERT INTO DOCUMENTREFERENCES (DOCUMENT_ID, REFERENCE_ID) VALUES (?, ?)")
+    documentsWithReference.foreach(document => {
+      document.references.get.foreach(reference => {
+        insertDocumentReferencesStatement.setLong(1, document.id)
+        insertDocumentReferencesStatement.setLong(2, reference)
+        insertDocumentReferencesStatement.addBatch()
+      })
+
     })
+    insertDocumentReferencesStatement.executeBatch()
+    connection.commit()
+    alterTable(connection, ADD_DOCUMENT_REFERENCES_FOREIGN_KEY)
+    insertDocumentReferencesStatement.close()
   }
+
+  def alterTable(connection: Connection, command: String) {
+    val statement = connection.createStatement()
+    statement.execute(command)
+    connection.commit()
+    statement.close()
+  }
+
 }
