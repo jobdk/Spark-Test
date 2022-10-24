@@ -6,9 +6,17 @@ import model.Document
 import java.sql.{Connection, DriverManager, Statement}
 
 object DatabaseService {
-  val connection: Connection = initialiseDatabase()
+  final val connection: Connection = initialiseDatabase()
 
   private def initialiseDatabase(): Connection = {
+    /*
+    val h2Server: Server =
+      Server
+        .createTcpServer("-tcpPort", "9092", "-tcpAllowOthers", "-ifNotExists")
+        .start();
+    val connection = DriverManager.getConnection(DATABASE_CLIENT_SERVER_PATH)
+     */
+
     Class.forName(DATABASE_DRIVER)
     val connection = DriverManager.getConnection(DATABASE_CONNECTION_EMBEDDED)
     connection.setAutoCommit(false)
@@ -22,13 +30,11 @@ object DatabaseService {
     connection
   }
 
-  def insertDocumentInDatabase(
-      documentList: List[Document]
-  ): Unit = {
-    insertIntoDocumentTable(documentList, connection)
-    insertIntoAuthorTable(documentList, connection)
-    insertIntoAuthorOfDocumentTable(documentList, connection)
-    insertIntoDocumentReferencesTable(documentList, connection)
+  def insertDocumentInDatabase(documentList: List[Document]): Unit = {
+    insertIntoDocumentTable(documentList)
+    insertIntoAuthorTable(documentList)
+    insertIntoAuthorOfDocumentTable(documentList)
+    insertIntoDocumentReferencesTable(documentList)
     connection.commit()
   }
 
@@ -39,10 +45,7 @@ object DatabaseService {
     connection.commit()
   }
 
-  private def insertIntoDocumentTable(
-      documentList: List[Document],
-      connection: Connection
-  ): Unit = {
+  private def insertIntoDocumentTable(documentList: List[Document]): Unit = {
     val insertDocumentStatement = connection.prepareStatement(
 //      s"REPLACE INTO DOCUMENT (DOCUMENT_ID, TITLE, DOCUMENT_YEAR, N_CITATION, PAGE_START, PAGE_END, DOC_TYPE, PUBLISHER, VOLUME, ISSUE, DOI) VALUES (?, ?, ?,?, ?, ?,?, ?, ?,?,?)"
 //    )
@@ -66,10 +69,7 @@ object DatabaseService {
     insertDocumentStatement.close()
   }
 
-  private def insertIntoAuthorTable(
-      documentList: List[Document],
-      connection: Connection
-  ): Unit = {
+  private def insertIntoAuthorTable(documentList: List[Document]): Unit = {
     val documentsWithAuthor = documentList.filter(_.authors.isDefined)
     val insertAuthorStatement = connection.prepareStatement(
 //      s"REPLACE INTO AUTHOR (AUTHOR_ID, NAME, ORG) VALUES (?, ?, ?)"
@@ -91,8 +91,7 @@ object DatabaseService {
   }
 
   private def insertIntoAuthorOfDocumentTable(
-      documentList: List[Document],
-      connection: Connection
+      documentList: List[Document]
   ): Unit = {
     val documentsWithAuthor = documentList.filter(_.authors.isDefined)
     val insertAuthorOfDocumentStatement = connection.prepareStatement(
@@ -113,8 +112,7 @@ object DatabaseService {
   }
 
   private def insertIntoDocumentReferencesTable(
-      documentList: List[Document],
-      connection: Connection
+      documentList: List[Document]
   ): Unit = {
     val documentsWithReference = documentList.filter(_.references.isDefined)
     val insertDocumentReferencesStatement = connection.prepareStatement(
@@ -128,10 +126,8 @@ object DatabaseService {
         insertDocumentReferencesStatement.setLong(2, reference)
         insertDocumentReferencesStatement.addBatch()
       })
-
     })
     insertDocumentReferencesStatement.executeBatch()
     insertDocumentReferencesStatement.close()
   }
-
 }

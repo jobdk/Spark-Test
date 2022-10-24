@@ -13,6 +13,10 @@ class Test extends AnyFunSuite {
     calculateDurationsAndPrintTimeResults()
   }
 
+  test("should calculate times for database") {
+    calculateDatabaseTimeIn10PercentSteps()
+  }
+
   def createLogs(): Unit = {
     val readerWriter = new FileWriter(READER_FILE_PATH)
     try {
@@ -34,9 +38,5 @@ class Test extends AnyFunSuite {
     new File(READER_FILE_PATH).delete()
     new File(MAPPER_FILE_PATH).delete()
     new File(DATABASE_FILE_PATH).delete()
-  }
-
-  test("should calculate times for database") {
-    calculateDatabaseTimeIn10PercentSteps()
   }
 }

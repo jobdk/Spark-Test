@@ -1,6 +1,6 @@
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
-ThisBuild / scalaVersion := "2.13.10"
+ThisBuild / scalaVersion := "3.2.0"
 
 lazy val root = (project in file("."))
   .settings(
@@ -23,5 +23,5 @@ libraryDependencies ++= Seq(
   "io.spray" %% "spray-json" % sprayVersion,
   // Logging
   "org.slf4j" % "slf4j-api" % l4jVersion,
-  "org.slf4j" % "slf4j-simple" % l4jVersion,
+  "org.slf4j" % "slf4j-simple" % l4jVersion
 )

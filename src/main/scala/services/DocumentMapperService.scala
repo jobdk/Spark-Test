@@ -41,7 +41,5 @@ object DocumentMapperService {
         LOG.error(e.getMessage)
         System.exit(1)
     }
-
   }
-
 }

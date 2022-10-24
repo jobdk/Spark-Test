@@ -4,8 +4,9 @@ import services.BatchService.startReading
 import services.DatabaseService.runSqlCommand
 
 object Main {
-//    private val fileName = "small.json"
-  private val fileName = "dblp.v12.json"
+//    private final val fileName = "small.json"
+  private final val fileName = "dblp.v12.json"
+
   def main(args: Array[String]): Unit = {
 
     runSqlCommand(DROP_ALL_KEYS)

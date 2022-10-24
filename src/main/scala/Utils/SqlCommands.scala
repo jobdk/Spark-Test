@@ -1,7 +1,7 @@
 package Utils
 
 object SqlCommands {
-  val ADD_ALL_KEYS: String =
+  final val ADD_ALL_KEYS: String =
     """
       ALTER TABLE DOCUMENT ADD CONSTRAINT CONSTRAINT_6 PRIMARY KEY (DOCUMENT_ID);
       ALTER TABLE DOCUMENTREFERENCES ADD CONSTRAINT CONSTRAINT_D PRIMARY KEY (DOCUMENT_ID, REFERENCE_ID);
@@ -11,7 +11,7 @@ object SqlCommands {
       ALTER TABLE AUTHOROFDOCUMENT ADD CONSTRAINT CONSTRAINT_ADF FOREIGN KEY (AUTHOR_ID) REFERENCES AUTHOR(AUTHOR_ID);
       """.stripMargin
 
-  val DROP_ALL_KEYS: String =
+  final val DROP_ALL_KEYS: String =
     """
       ALTER TABLE DOCUMENTREFERENCES DROP constraint CONSTRAINT_D5;
       ALTER TABLE AUTHOROFDOCUMENT DROP constraint CONSTRAINT_AD;
@@ -21,7 +21,7 @@ object SqlCommands {
       ALTER TABLE AUTHOROFDOCUMENT DROP CONSTRAINT CONSTRAINT_A;
        """.stripMargin
 
-  val CREATE_SCHEMA_STATEMENTS_WITHOUT_PRIMARY_KEY: String =
+  final val CREATE_SCHEMA_STATEMENTS_WITHOUT_PRIMARY_KEY: String =
     """
                 DROP TABLE if EXISTS authorOfDocument;
                 DROP TABLE if EXISTS documentReferences;
@@ -65,7 +65,7 @@ object SqlCommands {
                 );
               """.stripMargin
 
-  val CREATE_SCHEMA_STATEMENTS_WITH_PRIMARY_KEY: String =
+  final val CREATE_SCHEMA_STATEMENTS_WITH_PRIMARY_KEY: String =
     """
                 DROP TABLE if EXISTS authorOfDocument;
                 DROP TABLE if EXISTS documentReferences;
@@ -109,7 +109,7 @@ object SqlCommands {
                     FOREIGN KEY (document_id) REFERENCES document (document_id)
                 )
                         """.stripMargin
-  val CREATE_SCHEMA_STATEMENTS_WITH_PRIMARY_KEY_ON_AUTHOR: String =
+  final val CREATE_SCHEMA_STATEMENTS_WITH_PRIMARY_KEY_ON_AUTHOR: String =
     """
                 DROP TABLE if EXISTS authorOfDocument;
                 DROP TABLE if EXISTS documentReferences;
@@ -148,8 +148,15 @@ object SqlCommands {
                     reference_id LONG NOT NULL
                 )
                         """.stripMargin
-  val DATABASE_CONNECTION_EMBEDDED: String =
+  final val DATABASE_CONNECTION_EMBEDDED: String =
     "jdbc:h2:./src/main/resources/db/DocumentsDatabase;MODE=MYSQL"
-  val DATABASE_DRIVER: String = "org.h2.Driver"
+  final val DATABASE_DRIVER: String = "org.h2.Driver"
+
+  final val DATABASE_CLIENT_SERVER_PATH: String =
+    s"jdbc:h2:tcp://localhost:9092/"
+      .concat(
+        "/Users/john/dev/Studium/Informationssysteme/Informationssysteme-Praktikum-1/Informationssysteme-Praktikum-1/src/main/resources/db/DocumentsDatabase;"
+      )
+      .concat("MODE=MYSQL")
 
 }

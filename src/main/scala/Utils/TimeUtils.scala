@@ -67,8 +67,7 @@ object TimeUtils {
       .map(line => line.toLong)
       .toList
 
-    val rows: Int = 4894081 / 100
-    val tenPercentNumber: Int = (databaseTimeList.size / 100)*10
+    val tenPercentNumber: Int = databaseTimeList.size / 10
 
     val one: (List[Long], List[Long]) =
       databaseTimeList.splitAt(tenPercentNumber)

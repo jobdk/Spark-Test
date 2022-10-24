@@ -7,12 +7,11 @@ import org.slf4j.{Logger, LoggerFactory}
 import java.io.BufferedReader
 import scala.annotation.tailrec
 import scala.io.Source
-import scala.util.Random
 
 object BatchService {
-  private val LOG: Logger = LoggerFactory.getLogger(getClass.getSimpleName)
-  private val random: Random = Random
-  private val BATCH_SIZE = 2000
+  final private val LOG: Logger =
+    LoggerFactory.getLogger(getClass.getSimpleName)
+  final private val BATCH_SIZE = 2000
 
   def startReading(fileName: String): Unit = {
 
@@ -20,6 +19,7 @@ object BatchService {
       Source.fromResource(fileName).bufferedReader()
 
     val readingStartTime = getCurrentTime
+
     try {
       bufferedReader
         .lines()
@@ -33,6 +33,7 @@ object BatchService {
       case e: Exception ⇒
         LOG.info(e.getMessage)
     }
+
     logTime(
       calculateTimeDifference(readingStartTime, getCurrentTime),
       READER_FILE_PATH
@@ -48,7 +49,8 @@ object BatchService {
       DocumentMapperService.mapJsonToListOfDocuments(
         list.filter(line => line != null)
       )
-      println(list.count(line => line != null) + " " + random.nextInt())
+      println(list.count(line => line != null))
+      println("______")
       return
     }
 
@@ -63,10 +65,10 @@ object BatchService {
     )
   }
 
-  def lineIsNotNullAndJson(line: String): Boolean = {
+  private def lineIsNotNullAndJson(line: String): Boolean = {
     line != null && line.endsWith("}")
   }
 
-  def batchSizeIsReachedOrLastEntryIsNull(list: List[String]): Boolean =
+  private def batchSizeIsReachedOrLastEntryIsNull(list: List[String]): Boolean =
     list.size.equals(BATCH_SIZE) | list.last == null
 }
