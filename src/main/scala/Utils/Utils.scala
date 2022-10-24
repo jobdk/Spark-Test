@@ -9,7 +9,7 @@ object Utils {
       if (line.contains("\uFFFF")) lineSubstring.replace("\uFFFF", "x")
       else lineSubstring
     } catch {
-      case e: Exception =>
+      case _: Exception =>
         null
     }
   }

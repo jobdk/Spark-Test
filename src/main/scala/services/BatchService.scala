@@ -3,10 +3,8 @@ package services
 import Utils.TimeUtils._
 import Utils.Utils.checkLineForPossibleParsingErrors
 import org.slf4j.{Logger, LoggerFactory}
-import services.DatabaseService.initialiseDatabase
 
 import java.io.BufferedReader
-import java.sql.Connection
 import scala.annotation.tailrec
 import scala.io.Source
 import scala.util.Random
@@ -14,11 +12,9 @@ import scala.util.Random
 object BatchService {
   private val LOG: Logger = LoggerFactory.getLogger(getClass.getSimpleName)
   private val random: Random = Random
-  private val BATCH_SIZE = 100
-
+  private val BATCH_SIZE = 2000
 
   def startReading(fileName: String): Unit = {
-
 
     val bufferedReader: BufferedReader =
       Source.fromResource(fileName).bufferedReader()
@@ -30,9 +26,7 @@ object BatchService {
         .forEach(line ⇒ {
           processLines(
             List() :+ checkLineForPossibleParsingErrors(line),
-            bufferedReader,
-//            connection,
-            0
+            bufferedReader
           )
         })
     } catch {
@@ -43,42 +37,36 @@ object BatchService {
       calculateTimeDifference(readingStartTime, getCurrentTime),
       READER_FILE_PATH
     )
-
-    //    calculateDurationsAndPrintTimeResults()
-
   }
 
   @tailrec
   def processLines(
       list: List[String],
-      bufferedReader: BufferedReader,
-//      connection: Connection,
-      counter: Int
+      bufferedReader: BufferedReader
   ): Unit = {
-    if (list.size.equals(BATCH_SIZE) | list.last == null) {
+    if (batchSizeIsReachedOrLastEntryIsNull(list)) {
       DocumentMapperService.mapJsonToListOfDocuments(
         list.filter(line => line != null)
-//        connection
       )
-      println(list.count(line => line != null) + " " + random.nextInt()) //
+      println(list.count(line => line != null) + " " + random.nextInt())
       return
     }
 
     val filteredList: List[String] =
       list.filter(line => lineIsNotNullAndJson(line))
-    val validatedLine = checkLineForPossibleParsingErrors(
-      bufferedReader.readLine()
-    )
 
     processLines(
-      filteredList :+ validatedLine,
-      bufferedReader,
-//      connection,
-      counter + 1
+      filteredList :+ checkLineForPossibleParsingErrors(
+        bufferedReader.readLine()
+      ),
+      bufferedReader
     )
   }
 
   def lineIsNotNullAndJson(line: String): Boolean = {
     line != null && line.endsWith("}")
   }
+
+  def batchSizeIsReachedOrLastEntryIsNull(list: List[String]): Boolean =
+    list.size.equals(BATCH_SIZE) | list.last == null
 }

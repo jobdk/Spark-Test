@@ -10,31 +10,32 @@ import spray.json._
 object DocumentMapperService {
   private val LOG: Logger = LoggerFactory.getLogger(getClass.getSimpleName)
 
-  def mapJsonToListOfDocuments(
-      list: List[String]
-  ): Unit = {
-    val mapperStartTime = getCurrentTime // time
+  def mapJsonToListOfDocuments(list: List[String]): Unit = {
+
+    // time
+    val mapperStartTime = getCurrentTime
 
     try {
       val documentList: List[Document] = list.map(line =>
         line.mkString.stripMargin.parseJson.convertTo[Document]
       )
 
+      // time
       logTime(
         calculateTimeDifference(mapperStartTime, getCurrentTime),
         MAPPER_FILE_PATH
-      ) // time
-
-      val databaseStartTime = getCurrentTime // time
-
-      insertDocumentInDatabase(
-        documentList
       )
 
+      // time
+      val databaseStartTime = getCurrentTime
+
+      insertDocumentInDatabase(documentList)
+
+      // time
       logTime(
         calculateTimeDifference(databaseStartTime, getCurrentTime),
         DATABASE_FILE_PATH
-      ) // time
+      )
     } catch {
       case e: Exception =>
         LOG.error(e.getMessage)

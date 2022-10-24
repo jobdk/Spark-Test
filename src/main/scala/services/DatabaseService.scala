@@ -3,31 +3,40 @@ package services
 import Utils.SqlCommands._
 import model.Document
 
-import java.sql.{Connection, DriverManager}
+import java.sql.{Connection, DriverManager, Statement}
 
 object DatabaseService {
   val connection: Connection = initialiseDatabase()
 
-  def initialiseDatabase(): Connection = {
+  private def initialiseDatabase(): Connection = {
     Class.forName(DATABASE_DRIVER)
     val connection = DriverManager.getConnection(DATABASE_CONNECTION_EMBEDDED)
     connection.setAutoCommit(false)
     val createSchemaStatements = connection.createStatement()
-    //  createSchemaStatements.execute(CREATE_SCHEMA_STATEMENTS_WITHOUT_PRIMARY_KEY)
     createSchemaStatements.execute(CREATE_SCHEMA_STATEMENTS_WITH_PRIMARY_KEY)
+//    createSchemaStatements.execute(
+//      CREATE_SCHEMA_STATEMENTS_WITH_PRIMARY_KEY_ON_AUTHOR
+//    )
     createSchemaStatements.close()
+    connection.commit()
     connection
   }
 
   def insertDocumentInDatabase(
       documentList: List[Document]
-//      connection: Connection
   ): Unit = {
     insertIntoDocumentTable(documentList, connection)
     insertIntoAuthorTable(documentList, connection)
     insertIntoAuthorOfDocumentTable(documentList, connection)
     insertIntoDocumentReferencesTable(documentList, connection)
+    connection.commit()
+  }
 
+  def runSqlCommand(sqlCommand: String): Unit = {
+    val statement: Statement = connection.createStatement()
+    statement.execute(sqlCommand)
+    statement.close()
+    connection.commit()
   }
 
   private def insertIntoDocumentTable(
@@ -35,9 +44,10 @@ object DatabaseService {
       connection: Connection
   ): Unit = {
     val insertDocumentStatement = connection.prepareStatement(
-      s"REPLACE INTO DOCUMENT (DOCUMENT_ID, TITLE, DOCUMENT_YEAR, N_CITATION, PAGE_START, PAGE_END, DOC_TYPE, PUBLISHER, VOLUME, ISSUE, DOI) VALUES (?, ?, ?,?, ?, ?,?, ?, ?,?,?)"
+//      s"REPLACE INTO DOCUMENT (DOCUMENT_ID, TITLE, DOCUMENT_YEAR, N_CITATION, PAGE_START, PAGE_END, DOC_TYPE, PUBLISHER, VOLUME, ISSUE, DOI) VALUES (?, ?, ?,?, ?, ?,?, ?, ?,?,?)"
+//    )
+      s"INSERT INTO DOCUMENT (DOCUMENT_ID, TITLE, DOCUMENT_YEAR, N_CITATION, PAGE_START, PAGE_END, DOC_TYPE, PUBLISHER, VOLUME, ISSUE, DOI) VALUES (?, ?, ?,?, ?, ?,?, ?, ?,?,?)"
     )
-    //      s"INSERT INTO DOCUMENT (DOCUMENT_ID, TITLE, DOCUMENT_YEAR, N_CITATION, PAGE_START, PAGE_END, DOC_TYPE, PUBLISHER, VOLUME, ISSUE, DOI) VALUES (?, ?, ?,?, ?, ?,?, ?, ?,?,?)")
     documentList.foreach(document => {
       insertDocumentStatement.setLong(1, document.id)
       insertDocumentStatement.setString(2, document.title)
@@ -53,7 +63,6 @@ object DatabaseService {
       insertDocumentStatement.addBatch()
     })
     insertDocumentStatement.executeBatch()
-    connection.commit()
     insertDocumentStatement.close()
   }
 
@@ -63,9 +72,10 @@ object DatabaseService {
   ): Unit = {
     val documentsWithAuthor = documentList.filter(_.authors.isDefined)
     val insertAuthorStatement = connection.prepareStatement(
-      s"REPLACE INTO AUTHOR (AUTHOR_ID, NAME, ORG) VALUES (?, ?, ?)"
+//      s"REPLACE INTO AUTHOR (AUTHOR_ID, NAME, ORG) VALUES (?, ?, ?)"
+//    )
+      s"INSERT IGNORE INTO AUTHOR (AUTHOR_ID, NAME, ORG) VALUES (?, ?, ?)"
     )
-    //      s"INSERT INTO AUTHOR (AUTHOR_ID, NAME, ORG) VALUES (?, ?, ?)")
 
     documentsWithAuthor.foreach(document => {
       document.authors.orNull.foreach(author => {
@@ -77,7 +87,6 @@ object DatabaseService {
       })
     })
     insertAuthorStatement.executeBatch()
-    connection.commit()
     insertAuthorStatement.close()
   }
 
@@ -87,9 +96,10 @@ object DatabaseService {
   ): Unit = {
     val documentsWithAuthor = documentList.filter(_.authors.isDefined)
     val insertAuthorOfDocumentStatement = connection.prepareStatement(
-      s"REPLACE INTO AUTHOROFDOCUMENT (DOCUMENT_ID, AUTHOR_ID) VALUES (?, ?)"
+//      s"REPLACE INTO AUTHOROFDOCUMENT (DOCUMENT_ID, AUTHOR_ID) VALUES (?, ?)"
+//    )
+      s"INSERT INTO AUTHOROFDOCUMENT (DOCUMENT_ID, AUTHOR_ID) VALUES (?, ?)"
     )
-    //      s"INSERT INTO AUTHOROFDOCUMENT (DOCUMENT_ID, AUTHOR_ID) VALUES (?, ?)")
     documentsWithAuthor.foreach(document => {
       document.authors.orNull.foreach(author => {
         insertAuthorOfDocumentStatement.setLong(1, document.id)
@@ -99,7 +109,6 @@ object DatabaseService {
     })
 
     insertAuthorOfDocumentStatement.executeBatch()
-    connection.commit()
     insertAuthorOfDocumentStatement.close()
   }
 
@@ -109,9 +118,10 @@ object DatabaseService {
   ): Unit = {
     val documentsWithReference = documentList.filter(_.references.isDefined)
     val insertDocumentReferencesStatement = connection.prepareStatement(
-      s"REPLACE INTO DOCUMENTREFERENCES (DOCUMENT_ID, REFERENCE_ID) VALUES (?, ?)"
+//      s"REPLACE INTO DOCUMENTREFERENCES (DOCUMENT_ID, REFERENCE_ID) VALUES (?, ?)"
+//    )
+      s"INSERT INTO DOCUMENTREFERENCES (DOCUMENT_ID, REFERENCE_ID) VALUES (?, ?)"
     )
-//          s"INSERT INTO DOCUMENTREFERENCES (DOCUMENT_ID, REFERENCE_ID) VALUES (?, ?)")
     documentsWithReference.foreach(document => {
       document.references.get.foreach(reference => {
         insertDocumentReferencesStatement.setLong(1, document.id)
@@ -121,7 +131,6 @@ object DatabaseService {
 
     })
     insertDocumentReferencesStatement.executeBatch()
-    connection.commit()
     insertDocumentReferencesStatement.close()
   }
 

@@ -60,4 +60,37 @@ object TimeUtils {
 
   }
 
+  def calculateDatabaseTimeIn10PercentSteps(): Unit = {
+    val databaseTimeList: List[Long] = Source
+      .fromResource(DATABASE_FILE_NAME)
+      .getLines()
+      .map(line => line.toLong)
+      .toList
+
+    val rows: Int = 4894081 / 100
+    val tenPercentNumber: Int = (databaseTimeList.size / 100)*10
+
+    val one: (List[Long], List[Long]) =
+      databaseTimeList.splitAt(tenPercentNumber)
+    val two: (List[Long], List[Long]) = one._2.splitAt(tenPercentNumber)
+    val three: (List[Long], List[Long]) = two._2.splitAt(tenPercentNumber)
+    val four: (List[Long], List[Long]) = three._2.splitAt(tenPercentNumber)
+    val five: (List[Long], List[Long]) = four._2.splitAt(tenPercentNumber)
+    val six: (List[Long], List[Long]) = five._2.splitAt(tenPercentNumber)
+    val seven: (List[Long], List[Long]) = six._2.splitAt(tenPercentNumber)
+    val eight: (List[Long], List[Long]) = seven._2.splitAt(tenPercentNumber)
+    val nine: (List[Long], List[Long]) = eight._2.splitAt(tenPercentNumber)
+    val ten: List[Long] = nine._2
+
+    println("one : " + getDuration(one._1.sum))
+    println("two : " + getDuration(two._1.sum))
+    println("three : " + getDuration(three._1.sum))
+    println("four : " + getDuration(four._1.sum))
+    println("five : " + getDuration(five._1.sum))
+    println("six : " + getDuration(six._1.sum))
+    println("seven : " + getDuration(seven._1.sum))
+    println("eight : " + getDuration(eight._1.sum))
+    println("nine : " + getDuration(nine._1.sum))
+    println("ten : " + getDuration(ten.sum))
+  }
 }
