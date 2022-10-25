@@ -1,6 +1,6 @@
 package model
 
-case class Document(
+case class Article(
     id: Long,
     authors: Option[Seq[Author]],
     title: String,

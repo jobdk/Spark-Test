@@ -1,6 +1,6 @@
 package services
 
-import Utils.TimeUtils._
+import Utils.TimeUtils.{READER_FILE_PATH, calculateTimeDifference, getCurrentTime, logTime}
 import Utils.Utils.checkLineForPossibleParsingErrors
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -8,7 +8,7 @@ import java.io.BufferedReader
 import scala.annotation.tailrec
 import scala.io.Source
 
-object BatchService {
+object Reader {
   final private val LOG: Logger =
     LoggerFactory.getLogger(getClass.getSimpleName)
   final private val BATCH_SIZE = 2000

@@ -1,11 +1,15 @@
-package services
+package testing
+
 
 import Utils.DocumentJsonProtocol.documentFormat
-import Utils.TimeUtils._
-import model.Document
+import Utils.TimeUtils.{DATABASE_FILE_PATH, MAPPER_FILE_PATH, calculateTimeDifference, getCurrentTime, logTime}
+import model.Article
 import org.slf4j.{Logger, LoggerFactory}
-import services.DatabaseService.insertDocumentInDatabase
 import spray.json._
+import testing.DatabaseService.insertDocumentInDatabase
+
+import java.sql.Connection
+import scala.collection.mutable.ListBuffer
 
 object DocumentMapperService {
   private val LOG: Logger = LoggerFactory.getLogger(getClass.getSimpleName)
@@ -16,9 +20,8 @@ object DocumentMapperService {
     val mapperStartTime = getCurrentTime
 
     try {
-      val documentList: List[Document] = list.map(line =>
-        line.mkString.stripMargin.parseJson.convertTo[Document]
-      )
+      val documentList: List[Article] =
+        list.map(line => line.mkString.stripMargin.parseJson.convertTo[Article])
 
       // time
       logTime(

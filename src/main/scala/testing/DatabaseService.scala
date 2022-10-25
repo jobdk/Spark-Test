@@ -1,7 +1,11 @@
-package services
+package testing
 
-import Utils.SqlCommands._
-import model.Document
+import Utils.SqlCommands.{
+  CREATE_SCHEMA_STATEMENTS_WITH_PRIMARY_KEY,
+  DATABASE_CONNECTION_EMBEDDED,
+  DATABASE_DRIVER
+}
+import model.Article
 
 import java.sql.{Connection, DriverManager, Statement}
 
@@ -30,7 +34,7 @@ object DatabaseService {
     connection
   }
 
-  def insertDocumentInDatabase(documentList: List[Document]): Unit = {
+  def insertDocumentInDatabase(documentList: List[Article]): Unit = {
     insertIntoDocumentTable(documentList)
     insertIntoAuthorTable(documentList)
     insertIntoAuthorOfDocumentTable(documentList)
@@ -45,7 +49,7 @@ object DatabaseService {
     connection.commit()
   }
 
-  private def insertIntoDocumentTable(documentList: List[Document]): Unit = {
+  private def insertIntoDocumentTable(documentList: List[Article]): Unit = {
     val insertDocumentStatement = connection.prepareStatement(
 //      s"REPLACE INTO DOCUMENT (DOCUMENT_ID, TITLE, DOCUMENT_YEAR, N_CITATION, PAGE_START, PAGE_END, DOC_TYPE, PUBLISHER, VOLUME, ISSUE, DOI) VALUES (?, ?, ?,?, ?, ?,?, ?, ?,?,?)"
 //    )
@@ -69,7 +73,7 @@ object DatabaseService {
     insertDocumentStatement.close()
   }
 
-  private def insertIntoAuthorTable(documentList: List[Document]): Unit = {
+  private def insertIntoAuthorTable(documentList: List[Article]): Unit = {
     val documentsWithAuthor = documentList.filter(_.authors.isDefined)
     val insertAuthorStatement = connection.prepareStatement(
 //      s"REPLACE INTO AUTHOR (AUTHOR_ID, NAME, ORG) VALUES (?, ?, ?)"
@@ -91,7 +95,7 @@ object DatabaseService {
   }
 
   private def insertIntoAuthorOfDocumentTable(
-      documentList: List[Document]
+      documentList: List[Article]
   ): Unit = {
     val documentsWithAuthor = documentList.filter(_.authors.isDefined)
     val insertAuthorOfDocumentStatement = connection.prepareStatement(
@@ -112,7 +116,7 @@ object DatabaseService {
   }
 
   private def insertIntoDocumentReferencesTable(
-      documentList: List[Document]
+      documentList: List[Article]
   ): Unit = {
     val documentsWithReference = documentList.filter(_.references.isDefined)
     val insertDocumentReferencesStatement = connection.prepareStatement(
