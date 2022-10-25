@@ -1,3 +1,5 @@
 /.idea/
 /target/
 /src/main/resources/dblp.v12.json
+/project/
+/.bsp/sbt.json
