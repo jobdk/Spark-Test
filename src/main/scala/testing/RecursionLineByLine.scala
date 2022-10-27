@@ -1,7 +1,7 @@
 //package testing
 //
 //import Utils.TimeUtils.getCurrentTime
-//import services.DatabaseService.initialiseDatabase
+//import services.RedisService.initialiseDatabase
 //import services.DocumentMapperService
 //
 //import java.io.BufferedReader
@@ -49,7 +49,7 @@
 //      calculateTimes(readingStartTime, getCurrentTime, mapperAndDatabaseTime)
 //    }
 //    val time: (Long, Long) =
-//      DocumentMapperService.mapJsonToListOfDocuments(line, connection)
+//      DocumentMapperService.mapJsonToArticle(line, connection)
 ////    println(counter)
 //    processLines(
 //      bufferedReader.readLine(),

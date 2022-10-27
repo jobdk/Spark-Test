@@ -1,6 +1,11 @@
 package services
 
-import Utils.TimeUtils.{READER_FILE_PATH, calculateTimeDifference, getCurrentTime, logTime}
+import Utils.TimeUtils.{
+  READER_FILE_PATH,
+  calculateTimeDifference,
+  getCurrentTime,
+  logTime
+}
 import Utils.Utils.checkLineForPossibleParsingErrors
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -24,10 +29,11 @@ object Reader {
       bufferedReader
         .lines()
         .forEach(line ⇒ {
-          processLines(
-            List() :+ checkLineForPossibleParsingErrors(line),
-            bufferedReader
-          )
+          checkLineForPossibleParsingErrors(line) match {
+            case null ⇒
+            case line ⇒ ArticleMapperService.mapJsonToArticle(line, )
+          }
+
         })
     } catch {
       case e: Exception ⇒
@@ -46,9 +52,9 @@ object Reader {
       bufferedReader: BufferedReader
   ): Unit = {
     if (batchSizeIsReachedOrLastEntryIsNull(list)) {
-      DocumentMapperService.mapJsonToListOfDocuments(
-        list.filter(line => line != null)
-      )
+//      ArticleMapperService.mapJsonToArticle(
+//        list.filter(line => line != null)
+//      )
       println(list.count(line => line != null))
       println("______")
       return

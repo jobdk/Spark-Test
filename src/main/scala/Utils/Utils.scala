@@ -2,6 +2,7 @@ package Utils
 
 object Utils {
   def checkLineForPossibleParsingErrors(line: String): String = {
+    if (line == null | !line.endsWith("}")) return null
     try {
       if (line == null) return null
       val lineSubstring: String =
@@ -9,7 +10,7 @@ object Utils {
       if (line.contains("\uFFFF")) lineSubstring.replace("\uFFFF", "x")
       else lineSubstring
     } catch {
-      case _: Exception =>
+      case e: Exception =>
         null
     }
   }

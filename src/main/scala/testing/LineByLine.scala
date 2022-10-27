@@ -1,6 +1,6 @@
 //import org.slf4j.{Logger, LoggerFactory}
-//import services.DatabaseService.initialiseDatabase
-//import services.{DatabaseService, DocumentMapperService}
+//import services.RedisService.initialiseDatabase
+//import services.{RedisService, DocumentMapperService}
 //
 //import java.io.BufferedReader
 //import java.sql.Connection
@@ -23,7 +23,7 @@
 //    bufferedReader
 //      .lines()
 //      .forEach(line => {
-//        DocumentMapperService.mapJsonToListOfDocuments(line, connection)
+//        DocumentMapperService.mapJsonToArticle(line, connection)
 //        counter += 1
 //        println(counter)
 //      })
@@ -31,7 +31,7 @@
 //    LOG.info(counter + " rows were read")
 //    LOG.info(
 //      "Time reading data:       " + Duration.ofNanos(
-//        (endTimeReader - startTimeReader) - DocumentMapperService.timeList.sum - DatabaseService.timeList.sum
+//        (endTimeReader - startTimeReader) - DocumentMapperService.timeList.sum - RedisService.timeList.sum
 //      )
 //    )
 //    LOG.info(
@@ -41,7 +41,7 @@
 //    )
 //    LOG.info(
 //      "Time to database:        " + Duration.ofNanos(
-//        DatabaseService.timeList.sum
+//        RedisService.timeList.sum
 //      )
 //    )
 //  }

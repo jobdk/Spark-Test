@@ -4,6 +4,12 @@ import org.scalatest.funsuite.AnyFunSuite
 import java.io.{File, FileWriter}
 
 class Test extends AnyFunSuite {
+
+  test("should delete and recreate log files") {
+
+  }
+
+
   test("should delete and recreate log files") {
     deleteLogs()
     createLogs()
