@@ -1,11 +1,13 @@
 package model
 
 case class Article(
-    id: Long,
+    id: String,
     authors: Option[Seq[Author]],
     title: String,
-    year: Int,
-    n_citation: Int,
+//    year: Int,
+//    n_citation: Int,
+    year: String,
+    n_citation: String,
     page_start: String,
     page_end: String,
     doc_type: String,
@@ -13,8 +15,5 @@ case class Article(
     volume: String,
     issue: String,
     doi: String,
-    references: Option[Seq[Long]]
-    // indexed_abstract: IndexedAbstract,
-    // fos: Seq[Fos],
-    // venue: Venue
+    references: Option[Seq[String]]
 )

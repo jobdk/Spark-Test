@@ -1,4 +1,4 @@
-import Utils.TimeUtils._
+import utils.TimeUtils._
 import org.scalatest.funsuite.AnyFunSuite
 
 import java.io.{File, FileWriter}
