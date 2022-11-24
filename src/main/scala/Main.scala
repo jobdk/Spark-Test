@@ -1,4 +1,4 @@
-import model.{Article, Author}
+import model.Author
 import org.apache.spark.sql._
 import services.{QueryService, ReaderService}
 import utils.TimeUtils
@@ -20,15 +20,14 @@ object Main {
     val startTime = getCurrentTime
     // -------------------JSON ReaderService-----------------------
 
-    val jsonDF: Dataset[Article] = ReaderService.readJson(sparkSession, fileName)
+//    val jsonDF: Dataset[Article] = ReaderService.readJson(sparkSession, fileName)
 //    jsonDF.show()
 
-//    val textDF: Dataset[Article] =
-//      ReaderService.readEachLine(sparkSession, fileName)
+//    val textDF: Dataset[Article] = ReaderService.readEachLine(sparkSession, fileName)
 
     // -------------------Conversion-------------------------------------
 
-    ReaderService.convertToParquet(jsonDF, parquetPath)
+//    ReaderService.convertToParquet(jsonDF, parquetPath)
 
 //     ReaderService.convertToParquet(textDF, parquetPath)
 
@@ -48,7 +47,7 @@ object Main {
 
     // -------------------c) Count Articles-------------------------------------
 
-//    val numberOfAuthorsSql: Long = QueryService.distinctAuthorsSql(parquetDf, sparkSession)
+    val numberOfAuthorsSql: Long = QueryService.distinctAuthorsSql(parquetDf, sparkSession)
     val numberOfAuthorsSpark: Long = QueryService.distinctAuthorsSpark(parquetDf, sparkSession)
 
     val authorsWithMostArticlesSql: List[Author] = QueryService.mostArticlesSql(parquetDf)
@@ -56,7 +55,7 @@ object Main {
 
     println("numberArticlesSql: " + numberArticlesSql)
     println("numberArticlesSpark: " + numberArticlesSpark)
-//    println("numberOfAuthorsSql: " + numberOfAuthorsSql)
+    println("numberOfAuthorsSql: " + numberOfAuthorsSql)
     println("numberOfAuthorsSpark: " + numberOfAuthorsSpark)
     println("authorsWithMostArticlesSql: " + authorsWithMostArticlesSql)
     println("authorsWithMostArticlesSpark: " + authorsWithMostArticlesSpark)

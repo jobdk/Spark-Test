@@ -1,0 +1,14 @@
+Read Write Read Time: PT2.97407525S
+Count SQL Articles Time: PT1.501907292S
+Count Spark Articles Time: PT0.383394208S
+SQL Number of authors time: PT8.087596917S
+
+Wed Nov 23 22:36:24 CET 2022: Read Write Read Time: PT2.9176125S
+Wed Nov 23 22:36:26 CET 2022: Count SQL Articles Time: PT1.399972708S
+Wed Nov 23 22:36:26 CET 2022: Count Spark Articles Time: PT0.330566959S
+Wed Nov 23 22:36:36 CET 2022: SQL Number of authors time: PT9.670171625S
+
+Thu Nov 24 11:10:05 CET 2022: Read Write Read Time: PT2.609294083S
+Thu Nov 24 11:10:07 CET 2022: SQL Count Articles Time: PT1.459657708S
+Thu Nov 24 11:10:07 CET 2022: Spark Count Articles Time: PT0.339480125S
+Thu Nov 24 11:10:15 CET 2022: SQL Number of authors time: PT7.76028675S

@@ -3,8 +3,6 @@ package services
 import model.{Article, Author}
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.{col, explode}
-import spray.json._
-import utils.ArticleJsonProtocol.authorFormat
 import utils.TimeUtils
 import utils.TimeUtils.getCurrentTime
 //import spray.json._
@@ -24,11 +22,9 @@ object QueryService {
   def countArticlesSql(sparkSession: SparkSession): Long = {
     val startTime: Long = getCurrentTime
 
-    val query: String = "select count(*) from parquet"
+    val parquetSqlCount: Long = sparkSession.sql("select count(*) from parquet").collect().head.getAs[Long](0)
 
-    val parquetSqlCount: Long = sparkSession.sql(query).collect().head.getAs[Long](0)
-
-    TimeUtils.calculatePrintTimeDifference(startTime, "Count SQL Articles Time: ")
+    TimeUtils.calculatePrintTimeDifference(startTime, "SQL Count Articles Time: ")
     parquetSqlCount
   }
 
@@ -39,45 +35,71 @@ object QueryService {
 
     TimeUtils.calculatePrintTimeDifference(
       startTime,
-      "Count Spark Articles Time: "
+      "Spark Count Articles Time: "
     )
     parquetSparkCount
   }
 
   def distinctAuthorsSql(parquetDf: DataFrame, sparkSession: SparkSession): Long = {
-    val authors: Dataset[Author] = sparkSession.read
-      .parquet("./parquet/articles_parquet")
-      .select("authors")
-      .map(authors => authors.json.parseJson.convertTo)
-      .cache()
-
-    authors.createTempView("authorView")
-
-    val query: String = "SELECT COUNT(id) FROM authorView GROUP BY id"
+    val startTime = getCurrentTime
 
     sparkSession
-      .sql(query)
-      .count()
+      .sql("select authors from parquet")
+      .createOrReplaceTempView("authors")
+
+    val numberOfDistinctAuthors: Long = sparkSession
+      .sql(
+        """select
+          size(
+            array_distinct(
+              flatten(
+                array_agg(
+                  authors.id
+                )
+              )
+            )
+          )
+          as numberOfDistinctAuthors
+          from authors""".stripMargin
+      )
+//      .collect()
+//      .head
+//      .getAs[Long](0)
+      .first()
+      .get(0)
+      .toString
+      .toLong
+
+    TimeUtils.calculatePrintTimeDifference(
+      startTime,
+      "SQL Number of authors time: "
+    )
+    numberOfDistinctAuthors
   }
 
-  def distinctAuthorsSpark(parquetDf: DataFrame, sparkSession: SparkSession): Long = {
+  def distinctAuthorsSpark(parquetDf: DataFrame, sparkSession: SparkSession): Long = { // TODO: Change to different syntax
 
-//    sparkSession
-//      .read
-//      .parquet("")
-//      .select("authors")
-//      .flatMap(authors => authors.json.parseJson.convertTo[Author])
-//      .cache()
+    parquetDf
+      .select(explode(col("authors")))
+//      .as("author")
+      .select("col.id", "col.name", "col.org")
+      .as(authorEncoder)
+      .select("id")
+      .distinct()
+      .count()
+    /*  sparkSession
+      .read
+      .parquet("")
+      .select("authors")
+      .flatMap(authors => authors.json.parseJson.convertTo[Author])
+      .cache()
 
     val value: Dataset[Row] = parquetDf
       .select(explode(col("authors")))
       .as("author")
 
-//      .select("author.id", "author.name", "author.org")
-//      .as(authorEncoder)
-
-    2
-
+      .select("author.id", "author.name", "author.org")
+      .as(authorEncoder)*/
   }
 
   def mostArticlesSql(parquetDf: DataFrame): List[Author] = {
