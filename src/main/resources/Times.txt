@@ -3,12 +3,54 @@ Count SQL Articles Time: PT1.501907292S
 Count Spark Articles Time: PT0.383394208S
 SQL Number of authors time: PT8.087596917S
 
-Wed Nov 23 22:36:24 CET 2022: Read Write Read Time: PT2.9176125S
-Wed Nov 23 22:36:26 CET 2022: Count SQL Articles Time: PT1.399972708S
-Wed Nov 23 22:36:26 CET 2022: Count Spark Articles Time: PT0.330566959S
-Wed Nov 23 22:36:36 CET 2022: SQL Number of authors time: PT9.670171625S
+Sat Nov 26 09:19:09 GMT 2022: Read Write Read Time         : PT2.586594458S
+Sat Nov 26 09:19:10 GMT 2022: SQL   number of articles time: PT1.187288916S
+Sat Nov 26 09:19:11 GMT 2022: Spark number of articles time: PT0.275102542S
+Sat Nov 26 09:19:18 GMT 2022: SQL   distinctAuthors time   : PT7.836497375S
+Sat Nov 26 09:19:25 GMT 2022: Spark distinctAuthors time   : PT6.117332583S
+Sat Nov 26 09:19:49 GMT 2022: SQL   mostArticles           : PT24.347071959S
+Sat Nov 26 09:20:19 GMT 2022: Spark mostArticles           : PT30.01660925S
 
-Thu Nov 24 11:10:05 CET 2022: Read Write Read Time: PT2.609294083S
-Thu Nov 24 11:10:07 CET 2022: SQL Count Articles Time: PT1.459657708S
-Thu Nov 24 11:10:07 CET 2022: Spark Count Articles Time: PT0.339480125S
-Thu Nov 24 11:10:15 CET 2022: SQL Number of authors time: PT7.76028675S
+Sat Nov 26 09:25:22 GMT 2022: Read Write Read Time         : PT2.5053945S
+Sat Nov 26 09:25:23 GMT 2022: SQL   number of articles time: PT1.264142625S
+Sat Nov 26 09:25:23 GMT 2022: Spark number of articles time: PT0.353497958S
+Sat Nov 26 09:25:31 GMT 2022: SQL   distinctAuthors time   : PT7.028545667S
+Sat Nov 26 09:25:37 GMT 2022: Spark distinctAuthors time   : PT6.152605583S
+Sat Nov 26 09:26:00 GMT 2022: SQL   mostArticles           : PT23.112012833S
+Sat Nov 26 09:26:25 GMT 2022: Spark mostArticles           : PT25.660954375S
+
+Sat Nov 26 12:12:33 GMT 2022: Read Write Read Time         : PT2.902152125S
+Sat Nov 26 12:12:34 GMT 2022: SQL   number of articles time: PT1.354395208S
+Sat Nov 26 12:12:35 GMT 2022: Spark number of articles time: PT0.339285875S
+Sat Nov 26 12:12:43 GMT 2022: SQL arr distinctAuthors time : PT7.799762584S
+Sat Nov 26 12:12:48 GMT 2022: SQL expl distinctAuthors time: PT5.770643041S
+Sat Nov 26 12:12:53 GMT 2022: Spark distinctAuthors time   : PT4.755101375S
+Sat Nov 26 12:13:16 GMT 2022: SQL   mostArticles           : PT22.965352S
+Sat Nov 26 12:13:43 GMT 2022: Spark mostArticles           : PT27.328566584S
+
+
+Sat Nov 26 12:39:33 GMT 2022: Read Write Read Time         : PT2.581399625S
+Sat Nov 26 12:39:35 GMT 2022: SQL   number of articles time: PT1.414593125S
+Sat Nov 26 12:39:35 GMT 2022: Spark number of articles time: PT0.2817605S
+Sat Nov 26 12:39:42 GMT 2022: SQL arr distinctAuthors time : PT7.39927875S
+Sat Nov 26 12:39:50 GMT 2022: SQL expl distinctAuthors time: PT7.932539708S
+Sat Nov 26 12:39:55 GMT 2022: Spark distinctAuthors time   : PT4.818678708S
+Sat Nov 26 12:40:17 GMT 2022: SQL   mostArticles           : PT21.436047125S
+Sat Nov 26 12:40:42 GMT 2022: Spark mostArticles           : PT25.266747334S
+Sat Nov 26 12:44:08 GMT 2022: Read Write Read Time         : PT2.627102666S
+Sat Nov 26 12:44:09 GMT 2022: SQL   number of articles time: PT1.275511042S
+
+Sat Nov 26 12:44:09 GMT 2022: Spark number of articles time: PT0.322331833S
+Sat Nov 26 13:04:44 GMT 2022: SQL   number of articles time: PT9M28.600089542S
+Sat Nov 26 13:41:19 GMT 2022: Spark number of articles time: PT8M23.35206675S
+Sat Nov 26 13:41:25 GMT 2022: SQL arr distinctAuthors time : PT6.577966833S
+Sat Nov 26 13:41:28 GMT 2022: SQL expl distinctAuthors time: PT2.889290292S
+Sat Nov 26 13:41:30 GMT 2022: Spark distinctAuthors time   : PT2.209322792S
+Sat Nov 26 13:45:16 GMT 2022: SQL arr distinctAuthors time : PT3M45.553304292S
+Sat Nov 26 13:48:01 GMT 2022: SQL expl distinctAuthors time: PT2M44.679957667S
+Sat Nov 26 13:50:20 GMT 2022: Spark distinctAuthors time   : PT2M19.274847375S
+Sat Nov 26 13:50:31 GMT 2022: SQL   mostArticles           : PT11.382521S
+Sat Nov 26 13:50:45 GMT 2022: Spark mostArticles           : PT13.66121875S
+Sat Nov 26 13:54:43 GMT 2022: SQL   mostArticles           : PT3M58.24181125S
+Sat Nov 26 14:02:59 GMT 2022: Spark mostArticles           : PT8M15.580597125S
+

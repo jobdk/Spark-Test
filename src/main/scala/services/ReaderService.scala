@@ -11,7 +11,7 @@ import utils.{ReaderUtils, TimeUtils}
 object ReaderService {
   implicit val articleEncoder: Encoder[Article] = Encoders.product[Article]
 
-  def readEachLine(
+  def readLineByLineAsText(
       sparkSession: SparkSession,
       fileName: String
   ): Dataset[Article] = {
@@ -27,7 +27,7 @@ object ReaderService {
       .as(articleEncoder)
   }
 
-  def readJson(session: SparkSession, fileName: String): Dataset[Article] =
+  def readJsonWithLineSeparator(session: SparkSession, fileName: String): Dataset[Article] =
     session
 //      .read
 //      //        .option("multiline", value = true) // created valid json
@@ -36,7 +36,6 @@ object ReaderService {
 //      .schema(createJsonSchema)
 //      .json(fileName)
 //      .as(articleEncoder)
-
       .read
       .schema(createJsonSchema)
       .option("multiline", value = false)
@@ -45,8 +44,10 @@ object ReaderService {
       .json(fileName)
       .as(articleEncoder)
 
-  def readParquet(session: SparkSession, path: String): DataFrame =
-    session.read.parquet(path)
+  def readParquet(session: SparkSession, path: String): Dataset[Article] =
+    session.read
+      .parquet(path)
+      .as(articleEncoder)
 
   def convertToParquet(
       articlesDf: Dataset[Article],
@@ -56,7 +57,7 @@ object ReaderService {
 
     articlesDf.write.parquet(parquetPath)
 
-    TimeUtils.calculatePrintTimeDifference(
+    TimeUtils.calculateLogTimeDifference(
       startTime,
       "Conversion Read Time: "
     )

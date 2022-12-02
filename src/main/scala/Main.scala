@@ -1,8 +1,8 @@
-import model.Author
+import model.{Article, Author}
 import org.apache.spark.sql._
 import services.{QueryService, ReaderService}
 import utils.TimeUtils
-import utils.TimeUtils.getCurrentTime
+import utils.TimeUtils.{TIME_PATH, getCurrentTime, log}
 object Main {
 //  private final val fileName =
 //    "/Users/john/dev/Studium/Informationssysteme/Informationssysteme-Praktikum-3/src/main/resources/small.json"
@@ -12,54 +12,74 @@ object Main {
 //    "/Users/john/dev/Studium/Informationssysteme/Informationssysteme-Praktikum-3/src/main/resources/correct_json.json"
 
   private val parquetPath = "./parquet/articles_parquet"
+  private val PARQUET_VIEW = "parquet"
+  private val JSON_VIEW = "json"
 
   val sparkSession: SparkSession = createSparkSession()
 
   def main(args: Array[String]): Unit = {
 
     val startTime = getCurrentTime
-    // -------------------JSON ReaderService-----------------------
 
-//    val jsonDF: Dataset[Article] = ReaderService.readJson(sparkSession, fileName)
-//    jsonDF.show()
+/**
+ * Reading with multiline and a different separator
+ * */
+    val jsonDF: Dataset[Article] = ReaderService.readJsonWithLineSeparator(sparkSession, fileName)
 
-//    val textDF: Dataset[Article] = ReaderService.readEachLine(sparkSession, fileName)
+    /**reading as text file and line by line which is filted w*/
+    val textDF: Dataset[Article] = ReaderService.readLineByLineAsText(sparkSession, fileName)
 
-    // -------------------Conversion-------------------------------------
 
 //    ReaderService.convertToParquet(jsonDF, parquetPath)
 
 //     ReaderService.convertToParquet(textDF, parquetPath)
 
-    // -------------------Parquet Read-------------------------------------
-    val parquetDf: DataFrame =
+    val parquetDf: Dataset[Article] =
       ReaderService.readParquet(sparkSession, parquetPath)
 
-    TimeUtils.calculatePrintTimeDifference(startTime, "Read Write Read Time: ")
+    TimeUtils.calculateLogTimeDifference(startTime, "Read Write Read Time         : ")
 
-    // jsonDF.createOrReplaceTempView("json")
+    jsonDF.createOrReplaceTempView("json")
     parquetDf.createOrReplaceTempView("parquet")
 
-    // -------------------b) Count Articles-------------------------------------
+    val countArticlesSqlParquet: Long = QueryService.countArticlesSql(sparkSession, PARQUET_VIEW)
+    val countArticlesSparkParquet: Long = QueryService.countArticlesSpark(parquetDf)
 
-    val numberArticlesSql: Long = QueryService.countArticlesSql(sparkSession)
-    val numberArticlesSpark: Long = QueryService.countArticlesSpark(parquetDf)
+    val distinctAuthorsSqlParquet: Long = QueryService.distinctAuthorsSql(sparkSession, PARQUET_VIEW)
+    val distinctAuthorsSparkParquet: Long = QueryService.distinctAuthorsSpark(parquetDf)
 
-    // -------------------c) Count Articles-------------------------------------
 
-    val numberOfAuthorsSql: Long = QueryService.distinctAuthorsSql(parquetDf, sparkSession)
-    val numberOfAuthorsSpark: Long = QueryService.distinctAuthorsSpark(parquetDf, sparkSession)
+    val mostArticlesSqlParquet: List[Author] = QueryService.mostArticlesSql(sparkSession, PARQUET_VIEW)
+    val mostArticlesSparkParquet: List[Author] = QueryService.mostArticlesSpark(parquetDf)
 
-    val authorsWithMostArticlesSql: List[Author] = QueryService.mostArticlesSql(parquetDf)
-    val authorsWithMostArticlesSpark: List[Author] = QueryService.mostArticlesSpark(parquetDf)
+    TimeUtils.log("", TIME_PATH)
 
-    println("numberArticlesSql: " + numberArticlesSql)
-    println("numberArticlesSpark: " + numberArticlesSpark)
-    println("numberOfAuthorsSql: " + numberOfAuthorsSql)
-    println("numberOfAuthorsSpark: " + numberOfAuthorsSpark)
-    println("authorsWithMostArticlesSql: " + authorsWithMostArticlesSql)
-    println("authorsWithMostArticlesSpark: " + authorsWithMostArticlesSpark)
+    val countArticlesSqlJson: Long = QueryService.countArticlesSql(sparkSession, JSON_VIEW)
+    val countArticlesSparkJson: Long = QueryService.countArticlesSpark(jsonDF)
 
+    val distinctAuthorsSqlJson: Long = QueryService.distinctAuthorsSql(sparkSession, JSON_VIEW)
+    val distinctAuthorsSparkJson: Long = QueryService.distinctAuthorsSpark(jsonDF)
+
+    val mostArticlesSqlJson: List[Author] = QueryService.mostArticlesSql(sparkSession, JSON_VIEW)
+    val mostArticlesSparkJson: List[Author] = QueryService.mostArticlesSpark(jsonDF)
+
+    // Console Output
+    println("Parquet")
+    println("countArticlesSqlParquet: " + countArticlesSqlParquet)
+    println("countArticlesSparkParquet: " + countArticlesSparkParquet)
+    println("distinctAuthorsSqlParquet: " + distinctAuthorsSqlParquet)
+    println("distinctAuthorsSparkParquet: " + distinctAuthorsSparkParquet)
+    println("mostArticlesSqlParquet: " + mostArticlesSqlParquet)
+    println("mostArticlesSparkParquet: " + mostArticlesSparkParquet)
+
+    println("json")
+    println("countArticlesSqlJson: " + countArticlesSqlJson)
+    println("countArticlesSparkJson: " + countArticlesSparkJson)
+    println("distinctAuthorsSqlJson: " + distinctAuthorsSqlJson)
+    println("distinctAuthorsSparkJson: " + distinctAuthorsSparkJson)
+    println("mostArticlesSqlJson: " + mostArticlesSqlJson)
+    println("mostArticlesSparkJson: " + mostArticlesSparkJson)
+    log("", TIME_PATH)
   }
 
   private def createSparkSession(): SparkSession = {
