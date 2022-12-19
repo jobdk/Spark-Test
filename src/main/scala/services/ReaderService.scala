@@ -1,6 +1,5 @@
 package services
 
-import model.Article
 import org.apache.spark.sql._
 import org.apache.spark.sql.types._
 import spray.json._
@@ -34,13 +33,12 @@ object ReaderService {
       .option("lineSep", "\n,")
       .json(fileName)
 
-  def readParquet(session: SparkSession, path: String): Dataset[Article] =
+  def readParquet(session: SparkSession, path: String): Dataset[Row] =
     session.read
       .parquet(path)
-      .as(articleEncoder)
 
   def convertToParquet(
-      articlesDf: Dataset[Article],
+      articlesDf: Dataset[Row],
       parquetPath: String
   ): Unit = {
     val startTime: Long = getCurrentTime
