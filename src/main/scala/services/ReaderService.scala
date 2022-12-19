@@ -17,7 +17,7 @@ object ReaderService {
   ): Dataset[Article] = {
     sparkSession.read
       .textFile(fileName)
-      .filter(line => line.endsWith("}")) // TODO: change
+      .filter(line => line.endsWith("}"))
       .map(line ⇒ {
         ReaderUtils
           .checkLineForPossibleParsingErrors(line)
