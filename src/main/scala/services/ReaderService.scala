@@ -9,12 +9,11 @@ import utils.TimeUtils.getCurrentTime
 import utils.{ReaderUtils, TimeUtils}
 
 object ReaderService {
-  implicit val articleEncoder: Encoder[Article] = Encoders.product[Article]
 
-  def readLineByLineAsText(
+  def readLines(
       sparkSession: SparkSession,
       fileName: String
-  ): Dataset[Article] = {
+  ): Dataset[Row] = {
     sparkSession.read
       .textFile(fileName)
       .filter(line => line.endsWith("}"))
@@ -24,25 +23,16 @@ object ReaderService {
           .parseJson
           .convertTo[Article]
       })
-      .as(articleEncoder)
   }
 
-  def readJsonWithLineSeparator(session: SparkSession, fileName: String): Dataset[Article] =
+  def readWithSeperator(session: SparkSession, fileName: String): Dataset[Row] =
     session
-//      .read
-//      //        .option("multiline", value = true) // created valid json
-//      .option("lineSep", "\r\n,")
-//      .option("ignoreNullFields", true)
-//      .schema(createJsonSchema)
-//      .json(fileName)
-//      .as(articleEncoder)
       .read
       .schema(createJsonSchema)
-      .option("multiline", value = false)
-      .option("ignoreNullFields", value = true)
+      .option("multiline", false)
+      .option("ignoreNullFields", true)
       .option("lineSep", "\n,")
       .json(fileName)
-      .as(articleEncoder)
 
   def readParquet(session: SparkSession, path: String): Dataset[Article] =
     session.read
